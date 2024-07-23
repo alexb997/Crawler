@@ -4,8 +4,29 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+import java.util.Locale;
+
 public class Crawler {
-    public static void crawl(Document doc) {
+
+    private static String processDate(String dateText) {
+        LocalDate today = LocalDate.now();
+        if (dateText.contains("Azi")) {
+            return today.format(DateTimeFormatter.ofPattern("d MMMM yyyy", Locale.forLanguageTag("ro")));
+        } else {
+            try {
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("d MMMM yyyy");
+                LocalDate date = LocalDate.parse(dateText, formatter);
+                return date.toString();
+            } catch (DateTimeParseException e) {
+                return dateText;
+            }
+        }
+    }
+    public static String crawl(Document doc) {
+        StringBuilder result = new StringBuilder();
         Elements cards = doc.select("[data-cy=l-card]");
 
         for (Element card : cards) {
@@ -14,9 +35,19 @@ public class Crawler {
 
             boolean isPromoted = card.selectFirst("[data-testid=adCard-featured]") != null;
 
-            System.out.println("Title: " + title);
-            System.out.println("Promoted: " + (isPromoted ? "Yes" : "No"));
-            System.out.println("-----------------------");
+            Element priceElement = card.selectFirst("[data-testid=ad-price]");
+            String price = priceElement != null ? priceElement.text() : "No price";
+
+            Element dateElement = card.selectFirst("[data-testid=location-date]");
+            String dateText = dateElement != null ? dateElement.text() : "No date";
+            String date = processDate(dateText);
+
+            result.append("Title: ").append(title).append("\n");
+            result.append("Price: ").append(price).append("\n");
+            result.append("Date: ").append(date).append("\n");
+            result.append("Promoted: ").append(isPromoted ? "Yes" : "No").append("\n");
+            result.append("-----------------------\n");
         }
+        return result.toString();
     }
 }

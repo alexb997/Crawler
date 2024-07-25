@@ -15,15 +15,20 @@ public class Crawler {
         LocalDate today = LocalDate.now();
         if (dateText.contains("Azi")) {
             return today.format(DateTimeFormatter.ofPattern("d MMMM yyyy", Locale.forLanguageTag("ro")));
-        } else {
+        }
+        String[] parts = dateText.split(" - ");
+        if (parts.length > 1) {
+            String datePart = parts[1].trim();
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("d MMMM yyyy", Locale.forLanguageTag("ro"));
+            DateTimeFormatter parser = DateTimeFormatter.ofPattern("d MMMM yyyy", Locale.forLanguageTag("ro"));
             try {
-                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("d MMMM yyyy");
-                LocalDate date = LocalDate.parse(dateText, formatter);
-                return date.toString();
+                LocalDate date = LocalDate.parse(datePart, parser);
+                return date.format(formatter);
             } catch (DateTimeParseException e) {
                 return dateText;
             }
         }
+        return dateText;
     }
     public static String crawl(Document doc) {
         StringBuilder result = new StringBuilder();

@@ -1,4 +1,4 @@
-package org.example;
+package crawler.olx;
 
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
